@@ -1,13 +1,8 @@
-jobs = [
-  { name: "send_email", user: "田中" },
-  { name: "resize_image", user: "佐藤" },
-  { name: "create_report", user: "鈴木" }
-]
+require_relative "../examples/markdown_stats_job"
+require_relative "mini_queue"
 
-until jobs.empty?
-  job = jobs.shift
-  puts "実行中: #{job[:name]} (user: #{job[:user]})"
-end
-
-p jobs
+jobs = MiniQueue.new
+jobs.add_job(MarkdownStatsJob, "README.md")
+job = jobs.shift_jobs
+job[:job_class].new.perform(job[:file])
 

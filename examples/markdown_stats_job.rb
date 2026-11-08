@@ -4,4 +4,6 @@ class MarkdownStatsJob
   end
 end
 
-MarkdownStatsJob.new.perform("devlog/2026-11-05.md")
+
+
+
