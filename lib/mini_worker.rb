@@ -6,11 +6,12 @@ require_relative "mini_queue"
 queue = MiniQueue.new
 queue.add_job(MarkdownStatsJob, "README.md")
 queue.add_job(MarkdownStatsJob, "devlog/2026-11-05.md")
+queue.add_job(MarkdownStatsJob, "sonzaishinai.md")
 queue.add_job(MarkdownStatsJob, "devlog/2026-11-08.md")
 queue.add_job(HttpStatusJob, "https://chatgpt.com")
 queue.add_job(HttpStatusJob, "https://aiueo.com")
 queue.add_job(HttpStatusJob, "https://example.com")
-queue.add_job(HttpStatusJob, "https://github.com")
+queue.add_job(HttpStatusJob, "https://github.com") 
 
 
 
