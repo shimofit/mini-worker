@@ -1,17 +1,16 @@
 require_relative "../examples/markdown_stats_job"
 require_relative "../examples/http_status_job"
+require_relative "../examples/fractal_shape_job"
 require_relative "mini_queue"
 
+settings = {
+  width: 600,
+  height: 401,
+  max_iterations: 100
+}
 
 queue = MiniQueue.new
-queue.add_job(MarkdownStatsJob, "README.md")
-queue.add_job(MarkdownStatsJob, "devlog/2026-11-05.md")
-queue.add_job(MarkdownStatsJob, "sonzaishinai.md")
-queue.add_job(MarkdownStatsJob, "devlog/2026-11-08.md")
-queue.add_job(HttpStatusJob, "https://chatgpt.com")
-queue.add_job(HttpStatusJob, "https://aiueo.com")
-queue.add_job(HttpStatusJob, "https://example.com")
-queue.add_job(HttpStatusJob, "https://github.com") 
+queue.add_job(MandelbrotJob, settings)
 
 
 
