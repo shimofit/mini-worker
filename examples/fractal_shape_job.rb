@@ -1,8 +1,7 @@
 require "ruby2d"
+require "json"
 
-class MandelbrotJob
-  include Ruby2D::DSL
-
+class MandelCalcJob
   def escape_count(fixed_number, max_iterations)
     number = Complex(0, 0)
     cnt = 0
@@ -54,14 +53,39 @@ class MandelbrotJob
     }
   end
 
-  def draw_tile(tile, tile_result, max_iterations, canvas)
-    tile_result[:escape_counts].each_with_index do |row, row_cnt|
+  def perform(settings)
+    width = settings[:width]
+    height = settings[:height]
+    max_iterations = settings[:max_iterations]
+    tile_column = settings[:tile_column]
+    tile_row = settings[:tile_row]
+    tile_id = settings[:tile_id]
+
+    tiles = create_tile(tile_column, tile_row, width, height)
+    tile = tiles.find { |tile| tile[:tile_id] == tile_id }
+    result = calc_tile(tile, width, height, max_iterations)
+
+     render_settings = {
+      x_start: tile[:x_start],
+      y_start: tile[:y_start],
+      escape_counts: result[:escape_counts]
+    }
+    render_settings_json = JSON.generate(render_settings)
+    puts render_settings_json
+  end
+end
+
+class MandelRenderJob
+  include Ruby2D::DSL
+
+  def draw_tile(x_start, y_start, escape_counts, max_iterations, canvas)
+    escape_counts.each_with_index do |row, row_cnt|
       row.each_with_index do |column, column_cnt|
         color = column == max_iterations ? "black" : "white"
               
         canvas.fill_rectangle(
-          x: tile[:x_start] + column_cnt,
-          y: tile[:y_start] + row_cnt,
+          x: x_start + column_cnt,
+          y: y_start + row_cnt,
           width: 1,
           height: 1,
           color: color 
@@ -73,6 +97,7 @@ class MandelbrotJob
   def perform(settings)
     width = settings[:width]
     height = settings[:height]
+    max_iterations = settings[:max_iterations]
 
     set(
       title: "Fractal",
@@ -90,20 +115,11 @@ class MandelbrotJob
       update: false
     )
 
-    start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    settings[:tiles].each do |tile|
+      draw_tile(tile[:x_start], tile[:y_start], tile[:escape_counts], max_iterations, canvas)  
+    end
 
-    tiles = create_tile(3, 3, width, height)
-
-    tiles.each do |tile|
-      result = calc_tile(tile, width, height, settings[:max_iterations])
-      draw_tile(tile, result, settings[:max_iterations], canvas)
-    end      
-    
-
-    end_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-    elapsed_time = end_time - start_time
-
-    puts "#{width}×#{height}\nmax_iterations: #{settings[:max_iterations]}\n処理時間: #{elapsed_time}秒"
+    puts "#{width}×#{height}\nmax_iterations: #{max_iterations}"
 
     canvas.update
     show

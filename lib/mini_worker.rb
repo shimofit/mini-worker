@@ -1,16 +1,14 @@
-require_relative "../examples/markdown_stats_job"
-require_relative "../examples/http_status_job"
 require_relative "../examples/fractal_shape_job"
 require_relative "mini_queue"
+require "json"
 
-settings = {
-  width: 600,
-  height: 401,
-  max_iterations: 100
-}
+job_type = STDIN.gets.chomp
+job_class = Object.const_get(job_type)
+text = STDIN.gets
+settings = JSON.parse(text, symbolize_names: true)
 
 queue = MiniQueue.new
-queue.add_job(MandelbrotJob, settings)
+queue.add_job(job_class, settings)
 
 
 
